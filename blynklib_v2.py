@@ -41,8 +41,6 @@ DISCONNECTED = const(0)
 CONNECTING = const(1)
 CONNECTED = const(2)
 
-# ĐÃ XÓA BANNER CHỮ NGHỆ THUẬT GÂY RÁC MÀN HÌNH TẠI ĐÂY
-
 class EventEmitter:
     def __init__(self):
         self._cbks = {}
@@ -121,7 +119,6 @@ class BlynkProtocol(EventEmitter):
         if self.state == DISCONNECTED: return
         self.bin = b""
         self.state = DISCONNECTED
-        # THÔNG BÁO DISCONNECT CHUẨN (CHỈ IN 1 LẦN DUY NHẤT KHI RỚT MẠNG)
         print("Blynk: Đã ngắt kết nối (Disconnected)")
         self.emit('disconnected')
 
@@ -154,7 +151,6 @@ class BlynkProtocol(EventEmitter):
                 if self.state == CONNECTING and i == 1:
                     if dlen == STA_SUCCESS:
                         self.state = CONNECTED
-                        # THÔNG BÁO KẾT NỐI THÀNH CÔNG VỚI BLYNK
                         print("Kết nối Blynk thành công!")
                         dt = now - self.lastSend
                         info = ['ver', __version__, 'h-beat', self.heartbeat//1000, 'buff-in', self.buffin, 'dev', sys.platform+'-py']
@@ -203,7 +199,8 @@ import socket
 
 class Blynk(BlynkProtocol):
     def __init__(self, auth, **kwargs):
-        self.insecure = kwargs.pop('insecure', False) # Giữ nguyên False để BẬT bảo mật SSL
+        # ĐÃ ĐỔI THÀNH TRUE ĐỂ TẮT SSL, CHỐNG TREO RAM CHO ESP32
+        self.insecure = kwargs.pop('insecure', True) 
         self.server = kwargs.pop('server', 'blynk.cloud')
         self.port = kwargs.pop('port', 80 if self.insecure else 443)
         self._last_try = 0
@@ -228,14 +225,13 @@ class Blynk(BlynkProtocol):
 
     def connect(self):
         self.disconnect()
-        # THÔNG BÁO ĐANG KẾT NỐI VỚI BLYNK
         print("Đang kết nối với Blynk...")
         s = socket.socket()
         try:
             s.connect(socket.getaddrinfo(self.server, self.port)[0][-1])
             s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         except Exception:
-            try: s.close() # Vá lỗi rò rỉ socket nếu không tìm thấy IP server
+            try: s.close() 
             except: pass
             self.disconnect()
             return
@@ -250,11 +246,11 @@ class Blynk(BlynkProtocol):
                 import ssl
                 ssl_context = ssl.create_default_context()
             try:
-                import gc              # Khai báo thư viện dọn rác
-                gc.collect()           # Tối ưu hóa toàn bộ RAM trống trước khi bật SSL
+                import gc              
+                gc.collect()           
                 self.conn = ssl_context.wrap_socket(s, server_hostname=self.server)
             except Exception:
-                try: s.close() # Vá lỗi rò rỉ bộ nhớ (Socket leak) do chứng chỉ SSL thất bại
+                try: s.close() 
                 except: pass
                 self.disconnect()
                 return
@@ -273,7 +269,6 @@ class Blynk(BlynkProtocol):
             self.disconnect()
 
     def run(self):
-        # Tự động kết nối lại sau mỗi 5 giây nếu mất mạng
         if self.state == DISCONNECTED:
             now = gettime()
             if now - self._last_try > 5000:
@@ -290,7 +285,7 @@ class Blynk(BlynkProtocol):
             data = self.conn.read(self.buffin)
         except KeyboardInterrupt:
             raise
-        except OSError:       # Khắc phục lỗi socket.timeout của MicroPython
+        except OSError:       
             pass
         except:
             self.disconnect()

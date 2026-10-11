@@ -1,0 +1,36 @@
+<xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+  <category id="ble" name="BLYNK IoT" colour="#00A06B" icon="fa fa-bold">
+    <block type="yolobit_blynkv2_connect_wifi">
+      <value name="WIFI">
+        <shadow type="text">
+          <field name="TEXT">wifi</field>
+        </shadow>
+      </value>
+      <value name="PASSWORD">
+        <shadow type="text">
+          <field name="TEXT">password</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="yolobit_blynkv2_connect">
+      <value name="auth_key">
+          <shadow type="text"><field name="TEXT"></field></shadow>
+      </value>
+    </block>
+    <block type="yolobit_blynkv2_app_pin_write"></block>
+    <block type="yolobit_blynkv2_update_pin">
+      <value name="value">
+          <shadow type="math_number"><field name="NUM">1234</field></shadow>
+      </value>
+    </block>
+    <block type="yolobit_blynkv2_notify">
+      <value name="event">
+          <shadow type="text"><field name="TEXT">warning</field></shadow>
+      </value>
+      <value name="message">
+          <shadow type="text"><field name="TEXT"></field></shadow>
+      </value>
+    </block>
+    <block type="yolobit_blynkv2_run"></block>
+  </category>
+</xml>
